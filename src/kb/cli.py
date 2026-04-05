@@ -246,6 +246,33 @@ def unread(
     _set_status(id_or_title, ReadStatus.NOT_READ)
 
 
+@app.command()
+def rename(
+    id_or_title: Annotated[str, typer.Argument(help="Document ID (prefix) or title")],
+    new_title: Annotated[str, typer.Argument(help="New title for the document")],
+) -> None:
+    """Rename a document."""
+    from kb.obsidian import delete_document, write_document
+
+    cfg = _get_config()
+    db = _get_db(cfg)
+
+    try:
+        doc = db.find_document(id_or_title)
+        if not doc:
+            console.print(f"[red]Document not found:[/red] {id_or_title}")
+            raise typer.Exit(1)
+
+        old_title = doc.title
+        delete_document(doc, cfg.vault_kb_dir)
+        db.rename_document(doc.id, new_title)
+        doc.title = new_title
+        write_document(doc, cfg.vault_kb_dir)
+        console.print(f"[green]Renamed:[/green] {old_title} → {new_title}")
+    finally:
+        db.close()
+
+
 def _set_status(id_or_title: str, status: ReadStatus) -> None:
     from kb.obsidian import write_document
 

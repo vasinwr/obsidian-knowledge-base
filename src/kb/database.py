@@ -156,6 +156,16 @@ class Database:
         ).fetchone()
         return row is not None
 
+    def rename_document(self, doc_id: str, new_title: str) -> bool:
+        """Update a document's title. Returns True if document found."""
+        now = datetime.now(timezone.utc).isoformat()
+        cur = self._conn.execute(
+            "UPDATE documents SET title = ?, updated_at = ? WHERE id = ?",
+            (new_title, now, doc_id),
+        )
+        self._conn.commit()
+        return cur.rowcount > 0
+
     def set_read_status(self, doc_id: str, status: ReadStatus) -> bool:
         """Update read status. Returns True if document found."""
         now = datetime.now(timezone.utc).isoformat()
