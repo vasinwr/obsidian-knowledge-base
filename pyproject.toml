@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "knowledge-base"
+version = "0.1.0"
+description = "Personal knowledge base CLI with LLM-powered ingestion, semantic search, and Obsidian output"
+requires-python = ">=3.11"
+dependencies = [
+    "typer[all]>=0.9",
+    "rich>=13.0",
+    "chromadb>=0.4",
+    "sentence-transformers>=2.2",
+    "trafilatura>=1.6",
+    "pymupdf4llm>=0.0.5",
+    "httpx>=0.25",
+]
+
+[project.optional-dependencies]
+claude = ["anthropic>=0.18"]
+openai = ["openai>=1.0"]
+twitter = ["tweepy>=4.14"]
+dev = ["pytest>=7.0", "ruff>=0.1"]
+all = ["knowledge-base[claude,openai,twitter,dev]"]
+
+[project.scripts]
+kb = "kb.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kb"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
